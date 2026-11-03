@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body style="margin:0">
+<title>Unit 8 Mission Test</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="google" content="notranslate">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Lexend:wght@400;500;600&display=swap">
+<style>
+/* Layout: banda azul marino con franjas rojas y blancas (US/UK), misiones apiladas como tarjetas, estrellas rojas como XP */
+:root{
+  --bg:#eef2f9; --surface:#ffffff; --ink:#0f1f3d; --muted:#55627d;
+  --forest:#0b2a5b; --teal:#1f4fa8; --gold:#c8102e; --gold-soft:#fde7ea; --gold-ink:#8a0b20;
+  --line:#d3dbea; --ok:#1f7a4d; --bad:#c8102e; --field:#f6f8fc;
+  --f-display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Lexend",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0a1324; --surface:#111d35; --ink:#e6ecf7; --muted:#9aa8c4;
+  --forest:#6f97ef; --teal:#86a9f5; --gold:#ff5d6e; --gold-soft:#3a1720; --gold-ink:#ffb3bc;
+  --line:#243556; --ok:#5fcf8f; --bad:#ff6b7a; --field:#0d182d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a1324; --surface:#111d35; --ink:#e6ecf7; --muted:#9aa8c4;
+  --forest:#6f97ef; --teal:#86a9f5; --gold:#ff5d6e; --gold-soft:#3a1720; --gold-ink:#ffb3bc;
+  --line:#243556; --ok:#5fcf8f; --bad:#ff6b7a; --field:#0d182d; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,select{-webkit-user-select:text;user-select:text}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.band{background:#0b2a5b;color:#f4f7ff;position:relative}
+.stripes{height:12px;background:repeating-linear-gradient(180deg,#c8102e 0 4px,#ffffff 4px 8px)}
+.stars{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1.4px,transparent 1.6px);background-size:22px 22px;pointer-events:none}
+.band .wrap{padding-block:22px 20px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 220px}
+.pill canvas,.tile canvas{display:block}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(24px,5vw,32px);line-height:1.1;margin:0;text-wrap:balance}
+.coinbox{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px 6px 6px;font-family:var(--f-display);font-weight:600}
+.coin{width:30px;height:30px;border-radius:50%;background:#c8102e;border:2px solid #fff;display:grid;place-items:center;color:#fff;font-size:15px;line-height:1}
+.bar{height:6px;background:rgba(255,255,255,.2)}
+.bar i{display:block;height:100%;width:0;background:#ffffff;transition:width .3s}
+main .wrap{padding-block:22px 60px;display:flex;flex-direction:column;gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.card h2{font-family:var(--f-display);font-weight:600;font-size:22px;margin:0}
+label.f{display:flex;flex-direction:column;gap:6px;font-weight:500;font-size:14px}
+input[type=text],select{font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+input[type=text]:focus,select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px color-mix(in srgb,var(--teal) 25%,transparent)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:520px){.row{grid-template-columns:1fr}}
+.btn{font:inherit;font-family:var(--f-display);font-weight:600;font-size:17px;border:0;border-radius:12px;padding:12px 22px;cursor:pointer;background:var(--forest);color:var(--surface)}
+.btn.gold{background:var(--gold);color:var(--surface)}
+.btn.ghost{background:transparent;color:var(--teal);border:1.5px solid var(--line)}
+.btn:focus-visible,.pill:focus-visible,.tile:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.rules{margin:0;padding-left:20px;color:var(--muted);font-size:14px;display:grid;gap:4px}
+.mission{display:flex;flex-direction:column;gap:16px;border-top:4px solid var(--forest)}
+.mhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mtag{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);font-weight:600}
+.xp{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--gold-soft);color:var(--gold-ink);border-radius:999px;padding:3px 10px 3px 4px;font-family:var(--f-display);font-weight:600;font-size:14px}
+.xp .coin{width:20px;height:20px;font-size:11px;border-width:1.5px}
+.inst{margin:0;color:var(--muted);font-size:15px}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.bank span{border:1.5px dashed var(--gold);color:var(--gold-ink);background:var(--gold-soft);border-radius:8px;padding:2px 10px;font-weight:500}
+.item{display:grid;grid-template-columns:30px 1fr;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0;padding-top:0}
+.num{width:28px;height:28px;border-radius:50%;background:var(--forest);color:var(--surface);display:grid;place-items:center;font-family:var(--f-display);font-weight:600;font-size:14px}
+.body{display:flex;flex-direction:column;gap:8px;min-width:0}
+canvas.qc{display:block;max-width:100%}
+.pills{display:flex;gap:10px;flex-wrap:wrap}
+.pill{font:inherit;font-weight:500;border:1.5px solid var(--line);background:var(--field);color:var(--ink);border-radius:999px;padding:7px 18px;cursor:pointer}
+.pill[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:var(--surface)}
+.pool,.line{display:flex;flex-wrap:wrap;gap:8px;min-height:44px;padding:8px;border-radius:10px}
+.pool{background:var(--field);border:1.5px solid var(--line)}
+.line{border:1.5px dashed var(--teal)}
+.line:empty::before{content:"Toca las palabras en orden";color:var(--muted);font-size:14px;align-self:center}
+.tile{font:inherit;font-weight:500;border:0;border-radius:8px;padding:6px 12px;cursor:pointer;background:var(--surface);color:var(--ink);box-shadow:0 0 0 1.5px var(--line) inset}
+.line .tile{background:var(--teal);color:var(--surface);box-shadow:none}
+.small{font-size:13px;color:var(--muted)}
+.link{background:none;border:0;color:var(--teal);font:inherit;font-size:13px;cursor:pointer;padding:0;align-self:flex-start;text-decoration:underline}
+.warn{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bad);color:#fff;border-radius:0 0 12px 12px;padding:10px 14px;font-size:14px;font-weight:500}
+.submitbox{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.confirm{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(10,25,20,.92);color:#fff;display:grid;place-items:center;padding:24px;text-align:center}
+.overlay h2{font-family:var(--f-display);font-size:26px;margin:0 0 8px}
+.score{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.big{font-family:var(--f-display);font-weight:700;font-size:56px;line-height:1;color:var(--forest)}
+.nota{font-family:var(--f-display);font-weight:600;font-size:22px;background:var(--gold-soft);color:var(--gold-ink);border-radius:12px;padding:8px 14px}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px;margin:0}
+.meta dt{color:var(--muted)} .meta dd{margin:0;font-weight:500;font-variant-numeric:tabular-nums}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) 120px 56px;gap:10px;align-items:center;font-size:14px}
+.mbar{height:10px;border-radius:5px;background:var(--field);border:1px solid var(--line);overflow:hidden}
+.mbar i{display:block;height:100%;background:var(--gold)}
+.tnum{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+.flag{color:var(--bad);font-weight:600}
+.rev{display:grid;gap:8px;font-size:14px}
+.rv{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px 0;border-top:1px solid var(--line)}
+.ok{color:var(--ok);font-weight:700} .no{color:var(--bad);font-weight:700}
+.rv .exp{color:var(--muted)}
+.save{font-size:14px;font-weight:500;padding:10px 12px;border-radius:10px;background:var(--field);border:1px solid var(--line)}
+.save.good{color:var(--ok)} .save.badx{color:var(--bad)}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+.tbl th,.tbl td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tbl th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="app" translate="no" class="notranslate">
+  <div class="band">
+    <div class="stars"></div>
+    <div class="wrap" style="position:relative">
+      <div class="brand">
+
+      </div>
+      <div class="coinbox"><span class="coin">★</span><span id="prog">0 / 35</span></div>
+    </div>
+    <div class="bar"><i id="progbar"></i></div>
+  </div>
+  <div class="stripes"></div>
+  <div class="wrap"><div id="warn" class="warn" hidden></div></div>
+  <main>
+    <div class="wrap">
+      <section id="tpanel" class="card" hidden style="display:flex;flex-direction:column;gap:12px"></section>
+      <section id="start" class="card" style="display:flex;flex-direction:column;gap:16px">
+        <h2>Antes de empezar</h2>
+        <div class="row">
+          <label class="f">Nombre completo<input type="text" id="sname" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"></label>
+          <label class="f">Curso<input type="text" id="scourse" autocomplete="off" autocorrect="off" spellcheck="false"></label>
+        </div>
+        <ul class="rules">
+          <li>Son 7 misiones (ejercicios 3 al 9) con 70 XP en total.</li>
+          <li>No se puede copiar, pegar ni seleccionar el texto de las preguntas.</li>
+          <li>Cada vez que salgas de esta página queda registrado en tu resultado.</li>
+          <li>Las preguntas están en formato de imagen, así que los traductores del navegador no pueden leerlas.</li>
+        </ul>
+        <button class="btn" id="go">Empezar la misión</button>
+        <p class="small" id="starterr" hidden>Escribe tu nombre y tu curso para empezar.</p>
+      </section>
+      <div id="exam" hidden style="display:flex;flex-direction:column;gap:18px"></div>
+      <section id="result" hidden style="display:flex;flex-direction:column;gap:18px"></section>
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+const KEY = JSON.parse(decodeURIComponent(escape(atob("eyIzIjogW1sicmVjb21tZW5kIl0sIFsiaW52aXRlIl0sIFsicmVmdXNlIl0sIFsiY2xhaW0iXSwgWyJwZXJzdWFkZSJdXSwgIjQiOiBbWyJiZWxpZXZlZCJdLCBbImhhZG4ndCBzZWVuIiwgImhhZCBub3Qgc2VlbiJdLCBbIndvdWxkIGhlbHAiXSwgWyJjb3VsZG4ndCBvcGVuIiwgImNvdWxkIG5vdCBvcGVuIl0sIFsid2FzIGdvaW5nIHRvIG1pc3MiXV0sICI1IjogW1siSGUgY2xhaW1lZCBoZSBoYWRuJ3Qgc3RvbGVuIHRoZSBtb25leSJdLCBbIk15IHBhcmVudHMgZW5jb3VyYWdlZCBtZSB0byBzdHVkeSBtZWRpY2luZSJdLCBbIlRoZSBwb2xpY2UgdG9sZCB1cyBub3QgdG8gbGVhdmUgdGhlIGJ1aWxkaW5nIl0sIFsiU2hlIGFza2VkIG1lIGlmIEkgaGFkIHNlZW4gdGhlIHRoaWVmIl0sIFsiRXZlcnlvbmUgYWdyZWVkIHRoZSBmaWxtIGhhZCBiZWVuIGJyaWxsaWFudCJdXSwgIjYiOiBbWyJ3aGVyZSBJIHdhcyBnb2luZyJdLCBbIndoYXQgdGltZSBoZSBoYWQgZ290IGhvbWUiLCAid2hhdCB0aW1lIGhlIGdvdCBob21lIl0sIFsiaWYgd2UgaGFkIHNlZW4gaGVyIGtleXMiXSwgWyJub3QgdG8gb3BlbiB0aGUgZG9vciB0byBzdHJhbmdlcnMiXSwgWyJ3aGF0IHNoZSBoYWQgYmVlbiBkb2luZyBhdCAxMCBwbSIsICJ3aGF0IHNoZSB3YXMgZG9pbmcgYXQgMTAgcG0iXV0sICI3IjogW1siQ2FuIHlvdSBzd2ltPyIsICJDb3VsZCB5b3Ugc3dpbT8iXSwgWyJEb24ndCB0b3VjaCBteSBwaG9uZSEiXSwgWyJTaGFsbCBJIGNhcnJ5IHlvdXIgYmFnPyIsICJDYW4gSSBjYXJyeSB5b3VyIGJhZz8iLCAiSSdsbCBjYXJyeSB5b3VyIGJhZy4iLCAiTGV0IG1lIGNhcnJ5IHlvdXIgYmFnLiIsICJXb3VsZCB5b3UgbGlrZSBtZSB0byBjYXJyeSB5b3VyIGJhZz8iLCAiRG8geW91IHdhbnQgbWUgdG8gY2FycnkgeW91ciBiYWc/IiwgIkkgY2FuIGNhcnJ5IHlvdXIgYmFnLiJdLCBbIlB1dCB5b3VyIGhhbmRzIHVwISIsICJIYW5kcyB1cCEiXSwgWyJJJ20gc29ycnkgSSBicm9rZSB0aGUgd2luZG93LiIsICJJJ20gc29ycnkgZm9yIGJyZWFraW5nIHRoZSB3aW5kb3cuIiwgIlNvcnJ5IEkgYnJva2UgdGhlIHdpbmRvdy4iLCAiU29ycnkgZm9yIGJyZWFraW5nIHRoZSB3aW5kb3cuIiwgIkknbSBzb3JyeSBJJ3ZlIGJyb2tlbiB0aGUgd2luZG93LiIsICJTb3JyeSBJJ3ZlIGJyb2tlbiB0aGUgd2luZG93LiIsICJJJ20gc29ycnkgYWJvdXQgYnJlYWtpbmcgdGhlIHdpbmRvdy4iXV0sICI4IjogW1siSGUgdG9sZCBtZSBoZSBoYWQgYWxyZWFkeSBmaW5pc2hlZCB0aGUgdGVzdC4iXSwgWyJNYXJpYSBzdWdnZXN0ZWQgZ29pbmcgdG8gdGhlIGNpbmVtYS4iLCAiTWFyaWEgc3VnZ2VzdGVkIHdlIGdvIHRvIHRoZSBjaW5lbWEuIiwgIk1hcmlhIHN1Z2dlc3RlZCB3ZSBzaG91bGQgZ28gdG8gdGhlIGNpbmVtYS4iLCAiTWFyaWEgc3VnZ2VzdGVkIHdlIHdlbnQgdG8gdGhlIGNpbmVtYS4iXSwgWyJTaGUgb2ZmZXJlZCB0byBoZWxwIG1lIHdpdGggbXkgaG9tZXdvcmsuIl0sIFsiVGhleSBhc2tlZCBtZSB3aGVyZSBJIGxpdmVkLiJdLCBbIlRoZSBqdWRnZSB0b2xkIHRoZSBtYW4gdG8gc3RheSBxdWlldC4iLCAiVGhlIGp1ZGdlIG9yZGVyZWQgdGhlIG1hbiB0byBzdGF5IHF1aWV0LiIsICJUaGUganVkZ2UgYXNrZWQgdGhlIG1hbiB0byBzdGF5IHF1aWV0LiJdXSwgIjkiOiBbW1siQ2FuIHlvdSBoZWxwIG1lIHdpdGggbXkgaG9tZXdvcms/IiwgIkNvdWxkIHlvdSBoZWxwIG1lIHdpdGggbXkgaG9tZXdvcms/IiwgIkNhbiB5b3UgaGVscCBtZSB3aXRoIG15IGhvbWV3b3JrLCBMdWlzPyIsICJMdWlzLCBjYW4geW91IGhlbHAgbWUgd2l0aCBteSBob21ld29yaz8iXSwgWyJJJ20gdG9vIGJ1c3kuIiwgIlNvcnJ5LCBJJ20gdG9vIGJ1c3kuIiwgIkknbSB0b28gYnVzeSwgc29ycnkuIl1dLCBbWyJEb24ndCB1c2UgeW91ciBwaG9uZSBpbiBjbGFzcyEiLCAiUGVkcm8sIGRvbid0IHVzZSB5b3VyIHBob25lIGluIGNsYXNzISIsICJEb24ndCB1c2UgeW91ciBwaG9uZSBpbiBjbGFzcywgUGVkcm8hIl0sIFsiSSB3b24ndC4iLCAiSSdsbCB0cnkgbm90IHRvLiIsICJPSywgSSB3b24ndC4iXV0sIFtbIkkndmUganVzdCBmaW5pc2hlZCBhIGdyZWF0IGJvb2suIiwgIkkganVzdCBmaW5pc2hlZCBhIGdyZWF0IGJvb2suIl0sIFsiSSBkb24ndCBsaWtlIHJlYWRpbmcuIl1dLCBbWyJIYXZlIHlvdSBldmVyIHNlZW4gdGhlIG1hbiBiZWZvcmU/IiwgIkhhdmUgeW91IGV2ZXIgc2VlbiB0aGlzIG1hbiBiZWZvcmU/IiwgIkhhdmUgeW91IHNlZW4gdGhlIG1hbiBiZWZvcmU/IiwgIkhhdmUgeW91IGV2ZXIgc2VlbiB0aGF0IG1hbiBiZWZvcmU/Il0sIFsiSSBoYXZlbid0LiIsICJObywgSSBoYXZlbid0LiIsICJObywgSSBoYXZlIG5ldmVyIHNlZW4gaGltLiJdXSwgW1siQ2FuIHlvdSByaWRlIGEgYmlrZT8iLCAiQ291bGQgeW91IHJpZGUgYSBiaWtlPyJdLCBbIkkgY2FuLiIsICJZZXMsIEkgY2FuLiJdXV19"))));
+const PIN = "MFS2026";
+const S = [
+ {n:3, title:"Reporting verbs", type:"choice", pts:2, inst:"Choose the best verb to report each statement.",
+  items:[{q:"“Why don't you try the new pizza place? It's delicious.”",o:["refuse","recommend"]},
+         {q:"“Do you want to come to my party on Saturday?”",o:["persuade","invite"]},
+         {q:"“No, I'm not going to clean your room.”",o:["refuse","explain"]},
+         {q:"“Scientists say this camera system will stop most burglaries.”",o:["encourage","claim"]},
+         {q:"“Come on, join the team! You'll love it and you'll make new friends.”",o:["agree","persuade"]}]},
+ {n:4, title:"Reported statements", type:"gap", pts:2, inst:"Complete the reported sentences.",
+  items:[{q:"“I believe all thieves should pay for what they did.”",t:"She said she ________ all thieves should pay for what they had done."},
+         {q:"“We didn't see the robber.”",t:"They said they ________ the robber."},
+         {q:"“I'll help you with the report.”",t:"He said he ________ me with the report."},
+         {q:"“We can't open the case without more information.”",t:"The detectives said they ________ the case without more information."},
+         {q:"“You're going to miss the bus.”",t:"My mum said I ________ the bus."}]},
+ {n:5, title:"Word order", type:"order", pts:2, inst:"Put the words in the correct order to make sentences.",
+  items:[{w:["claimed","the money","he","hadn't","He","stolen"]},
+         {w:["me","to study","My parents","medicine","encouraged"]},
+         {w:["us","not to","The police","told","the building","leave"]},
+         {w:["me","She","if","had seen","I","asked","the thief"]},
+         {w:["had been","Everyone","brilliant","agreed","the film"]}]},
+ {n:6, title:"Questions & commands", type:"complete", pts:2, inst:"Complete the reported questions, requests and commands.",
+  items:[{q:"“Where are you going?”",lead:"He asked me"},
+         {q:"“What time did you get home?”",lead:"The officer asked him"},
+         {q:"“Have you seen my keys?”",lead:"She asked us"},
+         {q:"“Don't open the door to strangers!”",lead:"Mum told us"},
+         {q:"“What were you doing at 10 pm?”",lead:"The detective asked her"}]},
+ {n:7, title:"Back to direct speech", type:"direct", pts:2, inst:"Change the sentences into direct speech. Write the exact words the person said.",
+  items:[{q:"She asked me if I could swim."},
+         {q:"He told me not to touch his phone."},
+         {q:"She offered to carry my bag."},
+         {q:"The officer told him to put his hands up."},
+         {q:"He apologised for breaking the window."}]},
+ {n:8, title:"Find the mistake", type:"fix", pts:2, inst:"Find and correct the mistake. Write the full correct sentence.",
+  items:[{q:"He told me he already finished the test."},
+         {q:"Maria suggested to go to the cinema."},
+         {q:"She offered help me with my homework."},
+         {q:"They asked me where did I live."},
+         {q:"The judge said the man to stay quiet."}]},
+ {n:9, title:"Mini-dialogues", type:"dialog", pts:1, inst:"Change the reported speech into mini-dialogues. Write what each person said.",
+  items:[{q:"Ana asked Luis if he could help her with her homework. Luis said he was too busy.",sp:["ANA","LUIS"]},
+         {q:"The teacher told Pedro not to use his phone in class. Pedro said he wouldn't.",sp:["TEACHER","PEDRO"]},
+         {q:"Sara said she had just finished a great book. Tom said he didn't like reading.",sp:["SARA","TOM"]},
+         {q:"The detective asked Mia if she had ever seen the man before. Mia said she hadn't.",sp:["DETECTIVE","MIA"]},
+         {q:"Leo asked Kate if she could ride a bike. She told him she could.",sp:["LEO","KATE"]}]}
+];
+const lines=s=>s.type==="dialog"?2:1;
+const TOTAL = S.reduce((a,s)=>a+s.pts*lines(s)*s.items.length,0);
+const NITEMS = S.reduce((a,s)=>a+lines(s)*s.items.length,0);
+const SK="u8-mission-test";
+/* Pega aquí la URL de tu Apps Script (Google Sheets) para la versión de GitHub Pages */
+const SHEET_URL="https://script.google.com/macros/s/AKfycbyqgqmNV41nBKnyLr_MCyzoMdy_xTThIw6uuWTlHtXEzPd5ps1q9mArgzznDJzsP6Tb/exec";
+let DB=null, USER=null;
+let st = {name:"",course:"",ans:{},exits:0,trans:0,t0:null,t1:null,done:false,ov:{}};
+try{const r=localStorage.getItem(SK); if(r) st=Object.assign(st,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(SK,JSON.stringify(st));}catch(e){}}
+const $=id=>document.getElementById(id);
+const el=(t,c,txt)=>{const e=document.createElement(t); if(c)e.className=c; if(txt!=null)e.textContent=txt; return e;};
+document.documentElement.setAttribute("translate","no");
+document.documentElement.classList.add("notranslate");
+
+/* ---- text drawn on canvas: not in the page text, so translators and copy can't reach it ---- */
+const paints=new Map();
+function qc(text,kind){const c=document.createElement("canvas");c.className="qc";c.setAttribute("aria-hidden","true");paints.set(c,{text,kind});return c;}
+function paint(c){
+  const p=paints.get(c); if(!p) return;
+  const cs=getComputedStyle(document.documentElement), v=n=>cs.getPropertyValue(n).trim();
+  const F={quote:["italic 400",17,"Lexend"],lead:["500",16,"Lexend"],text:["400",17,"Lexend"],inst:["400",15,"Lexend"],
+    tag:["600",12,"Lexend"],eyebrow:["500",12,"Lexend"],h2:["600",22,"Fredoka"],h1:["700",30,"Fredoka"],chip:["500",16,"Lexend"],who:["600",14,"Lexend"]}[p.kind||"text"];
+  const font=F[0]+" "+F[1]+"px "+F[2]+", system-ui, sans-serif", lh=Math.round(F[1]*(p.kind==="h1"?1.2:1.5));
+  let color;
+  if(p.kind==="quote"||p.kind==="tag") color=v("--teal");
+  else if(p.kind==="inst") color=v("--muted");
+  else {const pe=c.parentElement; color=(pe&&pe.isConnected&&getComputedStyle(pe).color)||v("--ink");}
+  const ls=(p.kind==="tag"||p.kind==="eyebrow")?"1.5px":"0px";
+  const ctx=c.getContext("2d"); ctx.font=font; try{ctx.letterSpacing=ls;}catch(e){}
+  let w;
+  if(p.kind==="chip"||p.kind==="who") w=Math.ceil(ctx.measureText(p.text).width)+3;
+  else { w=c.parentElement?c.parentElement.clientWidth:0; if(!w) return; }
+  const words=p.text.split(" "), lines=[]; let cur="";
+  for(const wd of words){const tt=cur?cur+" "+wd:wd; if(ctx.measureText(tt).width>w-4&&cur){lines.push(cur);cur=wd;}else cur=tt;}
+  if(cur) lines.push(cur);
+  const dpr=window.devicePixelRatio||1, h=lines.length*lh+4;
+  c.width=Math.round(w*dpr); c.height=Math.round(h*dpr); c.style.width=w+"px"; c.style.height=h+"px";
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.font=font; try{ctx.letterSpacing=ls;}catch(e){}
+  ctx.fillStyle=color; ctx.textBaseline="top";
+  lines.forEach((l,i)=>ctx.fillText(l,0,i*lh+2));
+}
+function paintAll(){paints.forEach((v,c)=>{if(c.isConnected)paint(c);});}
+let rt; window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(paintAll,120);});
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",paintAll);}catch(e){}
+
+/* ---- anti-copy / anti-paste ---- */
+["copy","cut","paste","contextmenu","dragstart","drop"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),true));
+document.addEventListener("selectstart",e=>{if(!/INPUT|SELECT/.test(e.target.tagName))e.preventDefault();},true);
+function fieldAttrs(i){["autocomplete","autocorrect","autocapitalize"].forEach(a=>i.setAttribute(a,"off"));i.spellcheck=false;i.setAttribute("data-gramm","false");i.setAttribute("translate","no");}
+
+new MutationObserver(paintAll).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme","class"]});
+
+/* ---- leaving the page ---- */
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden&&st.t0&&!st.done){st.exits++;save();
+    const w=$("warn");w.hidden=false;w.textContent="Saliste de la evaluación "+st.exits+(st.exits===1?" vez":" veces")+". Queda registrado en tu resultado.";}
+});
+
+/* ---- build exam ---- */
+function setAns(k,v){st.ans[k]=v;save();updProg();}
+function updProg(){const n=Object.keys(st.ans).filter(k=>!k.includes("#")&&st.ans[k]&&String(st.ans[k]).trim()).length;$("prog").textContent=n+" / "+NITEMS;$("progbar").style.width=(n/NITEMS*100)+"%";}
+function build(){
+  const ex=$("exam"); ex.innerHTML="";
+  S.forEach((s,si)=>{
+    const card=el("article","card mission");
+    const hd=el("div","mhead");
+    const tg=el("div");tg.style.cssText="flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:2px";tg.append(qc("MISSION "+(si+1)+" · EXERCISE "+s.n,"tag"),qc(s.title,"h2"));
+    const xp=el("span","xp");xp.append(el("span","coin","★"),document.createTextNode(s.pts*lines(s)*s.items.length+" XP"));
+    const ins=el("div");ins.append(qc(s.inst,"inst"));hd.append(tg,xp); card.append(hd,ins);
+    if(s.bank){const b=el("div","bank");s.bank.forEach(w=>b.append(el("span",null,w)));card.append(b);}
+    s.items.forEach((it,ii)=>{
+      const k=s.n+"-"+ii, row=el("div","item"), body=el("div","body");
+      row.append(el("span","num",String(ii+1)),body);
+      if(s.type==="select"){
+        body.append(qc(it.t));
+        const sel=document.createElement("select");sel.id="a"+k;
+        sel.append(new Option("Elige una palabra…",""));s.bank.forEach(w=>sel.append(new Option(w,w)));
+        sel.value=st.ans[k]||""; sel.onchange=()=>setAns(k,sel.value); body.append(sel);
+      } else if(s.type==="choice"){
+        body.append(qc(it.q,"quote"));
+        const p=el("div","pills");
+        it.o.forEach(o=>{const b=el("button","pill");b.append(qc(o,"chip"));b.type="button";b.setAttribute("aria-pressed",st.ans[k]===o);
+          b.onclick=()=>{setAns(k,o);p.querySelectorAll(".pill").forEach(x=>x.setAttribute("aria-pressed",x===b));p.querySelectorAll("canvas").forEach(paint);};p.append(b);});
+        body.append(p);
+      } else if(s.type==="order"){
+        const pool=el("div","pool"), line=el("div","line");
+        const chosen=JSON.parse(st.ans[k+"#"]||"[]");
+        function render(){
+          pool.innerHTML="";line.innerHTML="";
+          it.w.forEach((w,wi)=>{const t=el("button","tile");t.append(qc(w,"chip"));t.type="button";
+            if(chosen.includes(wi)) return;
+            t.onclick=()=>{chosen.push(wi);commit();};pool.append(t);});
+          chosen.forEach((wi,pos)=>{const t=el("button","tile");t.append(qc(it.w[wi],"chip"));t.type="button";
+            t.onclick=()=>{chosen.splice(pos,1);commit();};line.append(t);});
+          pool.querySelectorAll("canvas").forEach(paint);line.querySelectorAll("canvas").forEach(paint);
+        }
+        function commit(){st.ans[k+"#"]=JSON.stringify(chosen);setAns(k,chosen.length===it.w.length?chosen.map(i=>it.w[i]).join(" "):"");render();}
+        render();
+        const r=el("button","link","Reiniciar orden");r.type="button";r.onclick=()=>{chosen.length=0;commit();};
+        body.append(line,pool,r);
+      } else if(s.type==="dialog"){
+        body.append(qc(it.q));
+        it.sp.forEach((who,li)=>{const kk=k+"-"+li;const lb=el("label","f");const sp=el("span");sp.append(qc(who,"who"));lb.append(sp);
+          const inp=document.createElement("input");inp.type="text";inp.id="a"+kk;fieldAttrs(inp);inp.placeholder="Escribe lo que dijo "+who;
+          inp.value=st.ans[kk]||"";inp.oninput=()=>setAns(kk,inp.value);lb.append(inp);body.append(lb);});
+      } else {
+        if(s.type==="gap"){body.append(qc(it.q,"quote"),qc(it.t));}
+        else if(s.type==="complete"){body.append(qc(it.q,"quote"),qc(it.lead+" …","lead"));}
+        else body.append(qc(it.q));
+        const inp=document.createElement("input");inp.type="text";inp.id="a"+k;fieldAttrs(inp);
+        inp.placeholder=s.type==="gap"?"Escribe solo las palabras que faltan":s.type==="complete"?"Continúa la oración":s.type==="direct"?"Escribe las palabras exactas":"Escribe la oración corregida";
+        inp.value=st.ans[k]||""; inp.oninput=()=>setAns(k,inp.value); body.append(inp);
+      }
+      card.append(row);
+    });
+    ex.append(card);
+  });
+  const sb=el("section","card submitbox");
+  const b=el("button","btn gold","Entregar evaluación");b.type="button";
+  const cf=el("div","confirm");cf.hidden=true;
+  b.onclick=()=>{const n=Object.keys(st.ans).filter(k=>!k.includes("#")&&st.ans[k]&&String(st.ans[k]).trim()).length;
+    cf.innerHTML="";cf.append(el("span",null,n<NITEMS?"Te faltan "+(NITEMS-n)+" respuestas. ¿Entregar de todas formas?":"¿Seguro que quieres entregar?"));
+    const y=el("button","btn","Sí, entregar");y.type="button";y.onclick=finish;
+    const no=el("button","btn ghost","Seguir revisando");no.type="button";no.onclick=()=>{cf.hidden=true;b.hidden=false;};
+    cf.append(y,no);cf.hidden=false;b.hidden=true;};
+  sb.append(el("h2",null,"Fin de la ruta"),el("p","inst","Revisa tus respuestas. Después de entregar no podrás cambiarlas."),b,cf);
+  ex.append(sb);
+  requestAnimationFrame(paintAll);
+}
+
+/* ---- grading ---- */
+function norm(s){
+  s=String(s||"").toLowerCase().replace(/[’‘`´]/g,"'").replace(/[“”"]/g," ");
+  s=s.replace(/(\d+)\s*p\.?\s*m\.?/g,"$1pm");
+  s=s.replace(/\bcan't\b/g,"can not").replace(/\bcannot\b/g,"can not").replace(/\bwon't\b/g,"will not")
+     .replace(/n't\b/g," not").replace(/'m\b/g," am").replace(/'re\b/g," are").replace(/'ll\b/g," will").replace(/'ve\b/g," have").replace(/'d\b/g," had");
+  s=s.replace(/[^a-z0-9 ]/g," ");
+  const map={whether:"if",gotten:"got",mom:"mum",ok:"okay"};
+  return s.split(/\s+/).filter(w=>w&&w!=="that").map(w=>map[w]||w).join(" ");
+}
+function isRight(s,ii,li){
+  const k=s.n+"-"+ii+(li==null?"":"-"+li); if(k in st.ov) return st.ov[k];
+  let a=norm(st.ans[k]); if(!a) return false;
+  if(li!=null){const strip=x=>x.replace(/^(yes|no|okay)\s+/,"");a=strip(a);return KEY[s.n][ii][li].some(x=>strip(norm(x))===a);}
+  if(s.type==="complete"){const l=norm(s.items[ii].lead); if(a.startsWith(l+" ")) a=a.slice(l.length+1);}
+  return KEY[s.n][ii].some(x=>norm(x)===a);
+}
+function grade(){let tot=0;const per=S.map(s=>{let p=0;s.items.forEach((_,i)=>{if(s.type==="dialog"){[0,1].forEach(l=>{if(isRight(s,i,l))p+=s.pts;});}else if(isRight(s,i))p+=s.pts;});tot+=p;return p;});return{tot,per};}
+function record(){const g=grade();return{name:st.name,course:st.course,score:g.tot,total:TOTAL,nota:Number((1+4*g.tot/TOTAL).toFixed(1)),
+  per:g.per.join(" | "),exits:st.exits,translator:st.trans,minutes:Number(((st.t1-st.t0)/60000).toFixed(1)),
+  submittedAt:new Date(st.t1).toISOString(),answers:JSON.stringify(Object.fromEntries(Object.entries(st.ans).filter(([k])=>!k.includes("#"))))};}
+async function sendRemote(){
+  const box=document.getElementById("savebox"); const show=(m,c)=>{if(box){box.textContent=m;box.className="save "+(c||"");}};
+  const rec=record();
+  if(DB&&USER){
+    try{const id=await USER.id(); await DB.collection("results").doc(id).set(rec); st.saved=true;save(); show("Resultado guardado en el registro de la profesora ✓","good"); return;}
+    catch(e){ if(!SHEET_URL){show("No se pudo guardar el resultado. Muestra esta pantalla a tu profesora.","badx");return;} }
+  }
+  if(SHEET_URL){
+    try{await fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(rec)});
+      st.saved=true;save(); show("Resultado enviado al registro de la profesora ✓","good");}
+    catch(e){show("No hay conexión. Toca “Reintentar envío” cuando vuelva el internet.","badx");}
+    return;
+  }
+  show("Este dispositivo no tiene registro en línea. Muestra esta pantalla a tu profesora.","badx");
+}
+function finish(){st.done=true;st.t1=Date.now();save();showResult();sendRemote();window.scrollTo(0,0);}
+function fmtTime(ms){const m=Math.floor(ms/60000),s=Math.round(ms%60000/1000);return m+" min "+s+" s";}
+
+function showResult(){
+  $("start").hidden=true;$("exam").hidden=true;$("warn").hidden=true;
+  const R=$("result");R.hidden=false;R.innerHTML="";
+  const g=grade(), nota=(1+4*g.tot/TOTAL).toFixed(1);
+  const c=el("article","card");c.style.cssText="display:flex;flex-direction:column;gap:16px";
+  const sc=el("div","score");
+  const bigw=el("div");bigw.append(el("div","big",g.tot+" / "+TOTAL),el("div","small","XP obtenidos"));
+  sc.append(bigw,el("div","nota","Nota "+nota));
+  const dl=el("dl","meta");
+  const add=(a,b,cls)=>{dl.append(el("dt",null,a));const d=el("dd",cls,b);dl.append(d);};
+  add("Estudiante",st.name);add("Curso",st.course);
+  add("Entregado",new Date(st.t1).toLocaleString("es-CO",{dateStyle:"medium",timeStyle:"short"}));
+  add("Tiempo",fmtTime(st.t1-st.t0));
+  add("Salidas de la página",String(st.exits),st.exits?"flag":null);
+  c.append(el("h2",null,"Misión cumplida"),sc,dl);
+  const mm=el("div");mm.style.cssText="display:grid;gap:8px";
+  S.forEach((s,i)=>{const mx=s.pts*lines(s)*s.items.length,r=el("div","mrow"),bar=el("div","mbar"),f=el("i");f.style.width=(g.per[i]/mx*100)+"%";bar.append(f);
+    r.append(el("span",null,(i+1)+". "+s.title),bar,el("span","tnum",g.per[i]+"/"+mx));mm.append(r);});
+  const sv=el("div","save",st.saved?"Resultado guardado en el registro de la profesora ✓":"Guardando resultado…");sv.id="savebox";if(st.saved)sv.className="save good";
+  c.append(mm,sv);
+  if(!st.saved){const rb=el("button","link","Reintentar envío");rb.type="button";rb.onclick=sendRemote;c.append(rb);}
+  R.append(c);
+  // teacher zone
+  const t=el("article","card");t.style.cssText="display:flex;flex-direction:column;gap:12px";
+  t.append(el("h2",null,"Zona docente"));
+  const pr=el("div","row");const pi=document.createElement("input");pi.type="password";pi.id="pin";pi.placeholder="Clave docente";
+  pi.style.cssText="font:inherit;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--field);color:var(--ink)";
+  const pb=el("button","btn ghost","Ver respuestas");pb.type="button";pr.append(pi,pb);t.append(pr);
+  const box=el("div","rev");t.append(box);
+  pb.onclick=()=>{if(pi.value!==PIN){box.innerHTML="";box.append(el("p","small","Clave incorrecta."));return;}renderReview(box);};
+  R.append(t);
+}
+function renderReview(box){
+  box.innerHTML="";
+  box.append(el("p","small","Toca “Cambiar” para corregir manualmente una respuesta que el sistema no reconoció. La nota se recalcula."));
+  S.forEach(s=>{
+    box.append(el("strong",null,"Exercise "+s.n+" · "+s.title));
+    s.items.forEach((it,i)=>{ (s.type==="dialog"?[0,1]:[null]).forEach(li=>{
+      const k=s.n+"-"+i+(li==null?"":"-"+li), ok=isRight(s,i,li==null?undefined:li), r=el("div","rv");
+      r.append(el("span",ok?"ok":"no",ok?"✓":"✗"));
+      const exp=li==null?KEY[s.n][i][0]:it.sp[li]+": "+KEY[s.n][i][li][0];
+      const mid=el("div");mid.append(el("div",null,st.ans[k]?st.ans[k]:"(sin respuesta)"),el("div","exp","Esperada: "+exp));
+      const b=el("button","link","Cambiar");b.type="button";
+      b.onclick=()=>{st.ov[k]=!ok;save();showResult();const p=$("pin");p.value=PIN;renderReview(document.querySelector(".rev"));};
+      r.append(mid,b);box.append(r);
+    });});
+  });
+  const reset=el("button","btn ghost","Reiniciar para otro estudiante");reset.type="button";
+  reset.onclick=()=>{try{localStorage.removeItem(SK);}catch(e){}location.reload();};
+  box.append(reset);
+}
+
+/* ---- panel docente (registro en claude.ai) ---- */
+function teacherPanel(){
+  const P=$("tpanel"); P.hidden=false; P.innerHTML="";
+  P.append(el("h2",null,"Registro de resultados"),el("p","inst","Solo tú ves este panel. Se actualiza en vivo cuando un estudiante entrega."));
+  const wrap=el("div","tbl"), cnt=el("p","small","Cargando…"); P.append(cnt,wrap);
+  const timer=setTimeout(()=>{cnt.textContent="El registro no respondió. Recarga la página para intentarlo de nuevo.";},10000);
+  DB.collection("results").orderBy("submittedAt","desc").onSnapshot(snap=>{
+    clearTimeout(timer); const rows=snap.docs.map(d=>d.data()); wrap.innerHTML="";
+    cnt.textContent=rows.length?rows.length+" entregas":"Aún no hay entregas. Aparecerán aquí en cuanto un estudiante termine.";
+    if(!rows.length) return;
+    const tb=document.createElement("table"); const hr=document.createElement("tr");
+    ["Estudiante","Curso","XP","Nota","Salidas","Entregado"].forEach(h=>hr.append(el("th",null,h)));
+    const th=document.createElement("thead");th.append(hr);tb.append(th);const bd=document.createElement("tbody");
+    rows.forEach(r=>{const tr=document.createElement("tr");
+      [r.name,r.course,r.score+"/"+r.total,String(r.nota),String(r.exits),new Date(r.submittedAt).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"})]
+        .forEach((v,i)=>{const td=el("td",(i===4&&r.exits)?"flag":null,v);tr.append(td);});bd.append(tr);});
+    tb.append(bd);wrap.append(tb);
+  },err=>{clearTimeout(timer);cnt.textContent="No se pudo leer el registro.";});
+}
+(async()=>{
+  if(!(window.claude&&window.claude.use)) return;
+  try{USER=await window.claude.use("user");DB=await window.claude.use("db");}catch(e){}
+  if(DB&&USER&&await USER.canEdit()) teacherPanel();
+  if(st.done&&!st.saved&&DB) sendRemote();
+})();
+if(st.done&&!st.saved&&SHEET_URL&&!(window.claude&&window.claude.use)) setTimeout(sendRemote,300);
+
+const brand=document.querySelector(".brand");
+brand.append(qc("THINK 3 · UNIT 8 · CRIME & REPORTED SPEECH","eyebrow"),qc("Unit 8 Mission Test","h1"));
+
+/* ---- start ---- */
+$("sname").value=st.name;$("scourse").value=st.course;fieldAttrs($("scourse"));
+$("go").onclick=()=>{
+  const n=$("sname").value.trim(),c=$("scourse").value.trim();
+  if(!n||!c){$("starterr").hidden=false;return;}
+  st.name=n;st.course=c;if(!st.t0)st.t0=Date.now();save();
+  $("start").hidden=true;$("exam").hidden=false;build();updProg();window.scrollTo(0,0);
+};
+(document.fonts?document.fonts.ready:Promise.resolve()).then(paintAll);
+if(st.done){showResult();}
+else if(st.t0){$("start").hidden=true;$("exam").hidden=false;build();updProg();}
+})();
+</script>
+
+</body>
+</html>
