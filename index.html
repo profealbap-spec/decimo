@@ -36,7 +36,8 @@ input,select{-webkit-user-select:text;user-select:text}
 .stripes{height:12px;background:repeating-linear-gradient(180deg,#c8102e 0 4px,#ffffff 4px 8px)}
 .stars{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1.4px,transparent 1.6px);background-size:22px 22px;pointer-events:none}
 .band .wrap{padding-block:22px 20px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-.brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+.brand{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 220px}
+.pill canvas,.tile canvas{display:block}
 .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
 h1{font-family:var(--f-display);font-weight:700;font-size:clamp(24px,5vw,32px);line-height:1.1;margin:0;text-wrap:balance}
 .coinbox{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px 6px 6px;font-family:var(--f-display);font-weight:600}
@@ -114,8 +115,7 @@ canvas.qc{display:block;max-width:100%}
     <div class="stars"></div>
     <div class="wrap" style="position:relative">
       <div class="brand">
-        <span class="eyebrow">Think 3 · Unit 8 · Crime &amp; reported speech</span>
-        <h1>Unit 8 Mission Test</h1>
+
       </div>
       <div class="coinbox"><span class="coin">★</span><span id="prog">0 / 35</span></div>
     </div>
@@ -136,7 +136,7 @@ canvas.qc{display:block;max-width:100%}
           <li>Son 7 misiones (ejercicios 3 al 9) con 70 XP en total.</li>
           <li>No se puede copiar, pegar ni seleccionar el texto de las preguntas.</li>
           <li>Cada vez que salgas de esta página queda registrado en tu resultado.</li>
-          <li>Si se detecta un traductor, la prueba se bloquea hasta que lo desactives.</li>
+          <li>Las preguntas están en formato de imagen, así que los traductores del navegador no pueden leerlas.</li>
         </ul>
         <button class="btn" id="go">Empezar la misión</button>
         <p class="small" id="starterr" hidden>Escribe tu nombre y tu curso para empezar.</p>
@@ -145,9 +145,6 @@ canvas.qc{display:block;max-width:100%}
       <section id="result" hidden style="display:flex;flex-direction:column;gap:18px"></section>
     </div>
   </main>
-  <div id="ov" class="overlay" hidden>
-    <div><h2>Traductor detectado</h2><p>Desactiva la traducción de la página para continuar.<br>Este evento quedó registrado.</p></div>
-  </div>
 </div>
 
 <script>
@@ -217,18 +214,27 @@ document.documentElement.classList.add("notranslate");
 const paints=new Map();
 function qc(text,kind){const c=document.createElement("canvas");c.className="qc";c.setAttribute("aria-hidden","true");paints.set(c,{text,kind});return c;}
 function paint(c){
-  const p=paints.get(c); const w=c.parentElement?c.parentElement.clientWidth:0; if(!w) return;
-  const cs=getComputedStyle(document.documentElement);
-  const color=(p.kind==="quote"?cs.getPropertyValue("--teal"):cs.getPropertyValue("--ink")).trim();
-  const fs=p.kind==="lead"?16:17, lh=Math.round(fs*1.5);
-  const font=(p.kind==="quote"?"italic ":"")+(p.kind==="lead"?"500 ":"400 ")+fs+"px Lexend, system-ui, sans-serif";
-  const ctx=c.getContext("2d"); ctx.font=font;
+  const p=paints.get(c); if(!p) return;
+  const cs=getComputedStyle(document.documentElement), v=n=>cs.getPropertyValue(n).trim();
+  const F={quote:["italic 400",17,"Lexend"],lead:["500",16,"Lexend"],text:["400",17,"Lexend"],inst:["400",15,"Lexend"],
+    tag:["600",12,"Lexend"],eyebrow:["500",12,"Lexend"],h2:["600",22,"Fredoka"],h1:["700",30,"Fredoka"],chip:["500",16,"Lexend"],who:["600",14,"Lexend"]}[p.kind||"text"];
+  const font=F[0]+" "+F[1]+"px "+F[2]+", system-ui, sans-serif", lh=Math.round(F[1]*(p.kind==="h1"?1.2:1.5));
+  let color;
+  if(p.kind==="quote"||p.kind==="tag") color=v("--teal");
+  else if(p.kind==="inst") color=v("--muted");
+  else {const pe=c.parentElement; color=(pe&&pe.isConnected&&getComputedStyle(pe).color)||v("--ink");}
+  const ls=(p.kind==="tag"||p.kind==="eyebrow")?"1.5px":"0px";
+  const ctx=c.getContext("2d"); ctx.font=font; try{ctx.letterSpacing=ls;}catch(e){}
+  let w;
+  if(p.kind==="chip"||p.kind==="who") w=Math.ceil(ctx.measureText(p.text).width)+3;
+  else { w=c.parentElement?c.parentElement.clientWidth:0; if(!w) return; }
   const words=p.text.split(" "), lines=[]; let cur="";
-  for(const wd of words){const t=cur?cur+" "+wd:wd; if(ctx.measureText(t).width>w-4&&cur){lines.push(cur);cur=wd;}else cur=t;}
+  for(const wd of words){const tt=cur?cur+" "+wd:wd; if(ctx.measureText(tt).width>w-4&&cur){lines.push(cur);cur=wd;}else cur=tt;}
   if(cur) lines.push(cur);
   const dpr=window.devicePixelRatio||1, h=lines.length*lh+4;
   c.width=Math.round(w*dpr); c.height=Math.round(h*dpr); c.style.width=w+"px"; c.style.height=h+"px";
-  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.font=font; ctx.fillStyle=color; ctx.textBaseline="top";
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.font=font; try{ctx.letterSpacing=ls;}catch(e){}
+  ctx.fillStyle=color; ctx.textBaseline="top";
   lines.forEach((l,i)=>ctx.fillText(l,0,i*lh+2));
 }
 function paintAll(){paints.forEach((v,c)=>{if(c.isConnected)paint(c);});}
@@ -240,17 +246,7 @@ try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",paintAl
 document.addEventListener("selectstart",e=>{if(!/INPUT|SELECT/.test(e.target.tagName))e.preventDefault();},true);
 function fieldAttrs(i){["autocomplete","autocorrect","autocapitalize"].forEach(a=>i.setAttribute(a,"off"));i.spellcheck=false;i.setAttribute("data-gramm","false");i.setAttribute("translate","no");}
 
-/* ---- translator detection ---- */
-const lang0=document.documentElement.lang;
-function checkTrans(){
-  const h=document.documentElement;
-  const hit=/translated/.test(h.className)||(h.lang&&h.lang!==lang0&&!/^en/i.test(h.lang))||!!document.querySelector("font[style*='vertical-align'], .goog-te-banner-frame, #goog-gt-tt");
-  if(hit&&st.t0&&!st.done){ if($("ov").hidden){st.trans++;save();} $("ov").hidden=false; }
-  else $("ov").hidden=true;
-  paintAll();
-}
-new MutationObserver(checkTrans).observe(document.documentElement,{attributes:true,attributeFilter:["class","lang","data-theme"]});
-new MutationObserver(()=>{if(document.querySelector("font[style*='vertical-align']"))checkTrans();}).observe(document.body,{childList:true,subtree:true});
+new MutationObserver(paintAll).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme","class"]});
 
 /* ---- leaving the page ---- */
 document.addEventListener("visibilitychange",()=>{
@@ -266,9 +262,9 @@ function build(){
   S.forEach((s,si)=>{
     const card=el("article","card mission");
     const hd=el("div","mhead");
-    const tg=el("div");tg.append(el("div","mtag","Mission "+(si+1)+" · Exercise "+s.n),el("h2",null,s.title));
+    const tg=el("div");tg.style.cssText="flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:2px";tg.append(qc("MISSION "+(si+1)+" · EXERCISE "+s.n,"tag"),qc(s.title,"h2"));
     const xp=el("span","xp");xp.append(el("span","coin","★"),document.createTextNode(s.pts*lines(s)*s.items.length+" XP"));
-    hd.append(tg,xp); card.append(hd,el("p","inst",s.inst));
+    const ins=el("div");ins.append(qc(s.inst,"inst"));hd.append(tg,xp); card.append(hd,ins);
     if(s.bank){const b=el("div","bank");s.bank.forEach(w=>b.append(el("span",null,w)));card.append(b);}
     s.items.forEach((it,ii)=>{
       const k=s.n+"-"+ii, row=el("div","item"), body=el("div","body");
@@ -281,19 +277,20 @@ function build(){
       } else if(s.type==="choice"){
         body.append(qc(it.q,"quote"));
         const p=el("div","pills");
-        it.o.forEach(o=>{const b=el("button","pill",o);b.type="button";b.setAttribute("aria-pressed",st.ans[k]===o);
-          b.onclick=()=>{setAns(k,o);p.querySelectorAll(".pill").forEach(x=>x.setAttribute("aria-pressed",x===b));};p.append(b);});
+        it.o.forEach(o=>{const b=el("button","pill");b.append(qc(o,"chip"));b.type="button";b.setAttribute("aria-pressed",st.ans[k]===o);
+          b.onclick=()=>{setAns(k,o);p.querySelectorAll(".pill").forEach(x=>x.setAttribute("aria-pressed",x===b));p.querySelectorAll("canvas").forEach(paint);};p.append(b);});
         body.append(p);
       } else if(s.type==="order"){
         const pool=el("div","pool"), line=el("div","line");
         const chosen=JSON.parse(st.ans[k+"#"]||"[]");
         function render(){
           pool.innerHTML="";line.innerHTML="";
-          it.w.forEach((w,wi)=>{const t=el("button","tile",w);t.type="button";
+          it.w.forEach((w,wi)=>{const t=el("button","tile");t.append(qc(w,"chip"));t.type="button";
             if(chosen.includes(wi)) return;
             t.onclick=()=>{chosen.push(wi);commit();};pool.append(t);});
-          chosen.forEach((wi,pos)=>{const t=el("button","tile",it.w[wi]);t.type="button";
+          chosen.forEach((wi,pos)=>{const t=el("button","tile");t.append(qc(it.w[wi],"chip"));t.type="button";
             t.onclick=()=>{chosen.splice(pos,1);commit();};line.append(t);});
+          pool.querySelectorAll("canvas").forEach(paint);line.querySelectorAll("canvas").forEach(paint);
         }
         function commit(){st.ans[k+"#"]=JSON.stringify(chosen);setAns(k,chosen.length===it.w.length?chosen.map(i=>it.w[i]).join(" "):"");render();}
         render();
@@ -301,7 +298,7 @@ function build(){
         body.append(line,pool,r);
       } else if(s.type==="dialog"){
         body.append(qc(it.q));
-        it.sp.forEach((who,li)=>{const kk=k+"-"+li;const lb=el("label","f");lb.append(el("span",null,who));
+        it.sp.forEach((who,li)=>{const kk=k+"-"+li;const lb=el("label","f");const sp=el("span");sp.append(qc(who,"who"));lb.append(sp);
           const inp=document.createElement("input");inp.type="text";inp.id="a"+kk;fieldAttrs(inp);inp.placeholder="Escribe lo que dijo "+who;
           inp.value=st.ans[kk]||"";inp.oninput=()=>setAns(kk,inp.value);lb.append(inp);body.append(lb);});
       } else {
@@ -382,7 +379,6 @@ function showResult(){
   add("Entregado",new Date(st.t1).toLocaleString("es-CO",{dateStyle:"medium",timeStyle:"short"}));
   add("Tiempo",fmtTime(st.t1-st.t0));
   add("Salidas de la página",String(st.exits),st.exits?"flag":null);
-  add("Traductor detectado",st.trans?"Sí ("+st.trans+")":"No",st.trans?"flag":null);
   c.append(el("h2",null,"Misión cumplida"),sc,dl);
   const mm=el("div");mm.style.cssText="display:grid;gap:8px";
   S.forEach((s,i)=>{const mx=s.pts*lines(s)*s.items.length,r=el("div","mrow"),bar=el("div","mbar"),f=el("i");f.style.width=(g.per[i]/mx*100)+"%";bar.append(f);
@@ -432,11 +428,11 @@ function teacherPanel(){
     cnt.textContent=rows.length?rows.length+" entregas":"Aún no hay entregas. Aparecerán aquí en cuanto un estudiante termine.";
     if(!rows.length) return;
     const tb=document.createElement("table"); const hr=document.createElement("tr");
-    ["Estudiante","Curso","XP","Nota","Salidas","Traductor","Entregado"].forEach(h=>hr.append(el("th",null,h)));
+    ["Estudiante","Curso","XP","Nota","Salidas","Entregado"].forEach(h=>hr.append(el("th",null,h)));
     const th=document.createElement("thead");th.append(hr);tb.append(th);const bd=document.createElement("tbody");
     rows.forEach(r=>{const tr=document.createElement("tr");
-      [r.name,r.course,r.score+"/"+r.total,String(r.nota),String(r.exits),r.translator?"Sí":"No",new Date(r.submittedAt).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"})]
-        .forEach((v,i)=>{const td=el("td",(i===4&&r.exits)||(i===5&&r.translator)?"flag":null,v);tr.append(td);});bd.append(tr);});
+      [r.name,r.course,r.score+"/"+r.total,String(r.nota),String(r.exits),new Date(r.submittedAt).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"})]
+        .forEach((v,i)=>{const td=el("td",(i===4&&r.exits)?"flag":null,v);tr.append(td);});bd.append(tr);});
     tb.append(bd);wrap.append(tb);
   },err=>{clearTimeout(timer);cnt.textContent="No se pudo leer el registro.";});
 }
@@ -447,6 +443,9 @@ function teacherPanel(){
   if(st.done&&!st.saved&&DB) sendRemote();
 })();
 if(st.done&&!st.saved&&SHEET_URL&&!(window.claude&&window.claude.use)) setTimeout(sendRemote,300);
+
+const brand=document.querySelector(".brand");
+brand.append(qc("THINK 3 · UNIT 8 · CRIME & REPORTED SPEECH","eyebrow"),qc("Unit 8 Mission Test","h1"));
 
 /* ---- start ---- */
 $("sname").value=st.name;$("scourse").value=st.course;fieldAttrs($("scourse"));
